@@ -17,11 +17,11 @@ func main() {
 	// 构造一个消息
 	msg := &sarama.ProducerMessage{}
 	msg.Topic = "web_log"
-	msg.Value = sarama.StringEncoder("this is a test log")
+	msg.Value = sarama.StringEncoder("【柠檬地拥抱】您正在注册账号，验证码是：666666，五分钟内有效，请及时使用哦。")
 	// 连接kafka
 	client, err := sarama.NewSyncProducer([]string{"127.0.0.1:9092"}, config)
 	if err != nil {
-		fmt.Println("producer closed, err:", err)
+		fmt.Println("创建生产者失败, err:", err)
 		return
 	}
 	defer client.Close()
