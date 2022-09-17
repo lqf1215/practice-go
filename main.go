@@ -61,7 +61,7 @@ func Hu(ch chan int) {
 }
 
 //func main() {
-//	client, err := rpc.DialHTTP("tcp", "localhost:8081")
+//	producer, err := rpc.DialHTTP("tcp", "localhost:8081")
 //	if err != nil {
 //		panic(err.Error())
 //	}
@@ -70,7 +70,7 @@ func Hu(ch chan int) {
 //	request := pb.OrderRequest{OrderId: "201907300001", TimeStamp: timeStamp}
 //
 //	var response *pb.OrderInfo
-//	err = client.Call("OrderService.GetOrderInfo", request, &response)
+//	err = producer.Call("OrderService.GetOrderInfo", request, &response)
 //	if err != nil {
 //		panic(err.Error())
 //	}

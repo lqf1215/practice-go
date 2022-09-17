@@ -6,7 +6,7 @@ import (
 )
 
 //连接kafka发送消息
-// 基于sarama第三方库开发的kafka client
+// 基于sarama第三方库开发的kafka producer
 
 func main() {
 	config := sarama.NewConfig()
