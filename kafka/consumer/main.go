@@ -6,11 +6,9 @@ import (
 	"sync"
 )
 
-//连接kafka消费消息
-
-// kafka consumer
 var wg sync.WaitGroup
 
+//连接kafka消费消息
 func main() {
 	consumer, err := sarama.NewConsumer([]string{"127.0.0.1:9092"}, nil)
 	if err != nil {
