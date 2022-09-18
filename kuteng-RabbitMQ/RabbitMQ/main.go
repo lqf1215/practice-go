@@ -279,3 +279,74 @@ func (r *RabbitMQ) RecieveRouting() {
 	<-forever
 
 }
+
+//话题模式
+func NewRabbitMQTopic(exchangeName string, routingKey string) *RabbitMQ {
+	//创建Rabbit MQ实列
+	rabbitMQ := NewRabbitMQ("", exchangeName, routingKey)
+	var err error
+	rabbitMQ.conn, err = amqp.Dial(rabbitMQ.Mqurl)
+	rabbitMQ.failOnErr(err, "failed to connect rabbitmq!")
+
+	// 获取channge
+	rabbitMQ.channel, err = rabbitMQ.conn.Channel()
+	rabbitMQ.failOnErr(err, "failed to open a channel!")
+	return rabbitMQ
+}
+
+func (r *RabbitMQ) PublishTopic(msg string) {
+	err := r.channel.ExchangeDeclare(
+		r.Exchange,
+		//改成topic
+		"topic",
+		true, false, false, false, nil)
+
+	r.failOnErr(err, "failed to declare an exchange")
+
+	// 发送消息
+	err = r.channel.Publish(
+		r.Exchange,
+		// 要设置
+		r.Key, false, false, amqp.Publishing{ContentType: "text/plain", Body: []byte(msg)},
+	)
+}
+
+// 话题模式接收消息
+//注意key,规则 其中 “*” 用于匹配一个单词，“#”用于匹配多个单词（可以是0个）
+//匹配kuteng.* 表示匹配kuteng.hello,kuteng.hello.one 需要 用的kuteng.# 才能匹配到
+func (r *RabbitMQ) RecieveTopic() {
+	err := r.channel.ExchangeDeclare(
+		r.Exchange,
+		//交换机类型
+		"topic",
+		true, false, false, false, nil,
+	)
+	r.failOnErr(err, "failed to declare an exchange")
+
+	q, err := r.channel.QueueDeclare(
+		"", //随机生产队列名称
+		false, false, true, false, nil)
+	r.failOnErr(err, "failed to declare a queue")
+
+	//绑定队列到exchange中
+	err = r.channel.QueueBind(
+		q.Name,
+		//在pub/sub模式下，这里的key为空
+		r.Key,
+		r.Exchange,
+		false, nil,
+	)
+	//消费消息
+	msg, err := r.channel.Consume(
+		q.Name, "", true, false, false, false, nil)
+
+	forever := make(chan bool)
+	go func() {
+		for d := range msg {
+			log.Printf("Received a message :%s", d.Body)
+		}
+	}()
+
+	fmt.Println("退出请安 CTRL+C\n")
+	<-forever
+}
